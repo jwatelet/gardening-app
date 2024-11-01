@@ -43,9 +43,12 @@ class PlantControllerIT {
     @Test
     void listAllBeers_withPaginationParams() throws Exception {
         mockMvc.perform(get(PlantController.PLANT_PATH)
-                        .queryParam("pageNumber", "1")
+                        .queryParam("pageNumber", "0")
                         .queryParam("pageSize", "1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.number", is(0)))
+                .andExpect(jsonPath("$.page.totalPages", is(3)))
+                .andExpect(jsonPath("$.page.totalElements", is(3)))
                 .andExpect(jsonPath("$.content.size()", is(1)));
     }
 
