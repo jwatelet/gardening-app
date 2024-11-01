@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,6 +31,76 @@ class PlantControllerIT {
 
     @Autowired
     ObjectMapper objectMapper;
+
+
+    @Test
+    @Transactional
+    void updatePlantById_withEmptyName() throws Exception {
+        Plant plant = plantRepository.findAll().get(0);
+
+        final String updatedName = "";
+        final String updatedDescription = "Updated description";
+
+        plant.setName(updatedName);
+        plant.setDescription(updatedDescription);
+
+        mockMvc.perform(put(PlantController.PLANT_PATH_ID, plant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(plant)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    void updatePlantByIdNotFound() throws Exception {
+        Plant plant = plantRepository.findAll().get(0);
+
+        final String updatedName = "Updated name";
+        final String updatedDescription = "Updated description";
+
+        plant.setName(updatedName);
+        plant.setDescription(updatedDescription);
+
+        mockMvc.perform(put(PlantController.PLANT_PATH_ID, -1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(plant)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    void updatePlantById() throws Exception {
+
+        Plant plant = plantRepository.findAll().get(0);
+
+        final String updatedName = "Updated name";
+        final String updatedDescription = "Updated description";
+
+        plant.setName(updatedName);
+        plant.setDescription(updatedDescription);
+
+        mockMvc.perform(put(PlantController.PLANT_PATH_ID, plant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(plant)))
+                .andExpect(jsonPath("$.name", is(updatedName)))
+                .andExpect(jsonPath("$.description", is(updatedDescription)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Transactional
+    void createNewPlant_withInvalidName() throws Exception {
+        PlantDTO plantDTO = PlantDTO.builder()
+                .description("New description")
+                .build();
+
+        mockMvc.perform(post(PlantController.PLANT_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(plantDTO)))
+                .andExpect(jsonPath("$.size()", is(1)))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @Transactional

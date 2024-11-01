@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +33,32 @@ public class PlantServiceJPA implements PlantService {
     }
 
     @Override
-    public Optional<PlantDTO> getPlantById(Long plantId) {
+    public Optional<PlantDTO> getById(Long plantId) {
         return Optional.ofNullable(plantMapper.entityToDto(plantRepository.findById(plantId).orElse(null)));
     }
 
     @Override
-    public PlantDTO createPlant(PlantDTO plantDTO) {
+    public PlantDTO create(PlantDTO plantDTO) {
 
         Plant savedPlant = plantRepository.save(plantMapper.dtoToEntity(plantDTO));
 
         return plantMapper.entityToDto(savedPlant);
+    }
+
+    @Override
+    public Optional<PlantDTO> updateById(Long plantId, PlantDTO plantDTO) {
+        AtomicReference<Optional<PlantDTO>> atomicReference = new AtomicReference<>();
+
+        plantRepository.findById(plantId).ifPresentOrElse((foundPlant) -> {
+            foundPlant.setName(plantDTO.getName());
+            foundPlant.setDescription(plantDTO.getDescription());
+
+            PlantDTO updatedPlant = plantMapper.entityToDto(plantRepository.save(foundPlant));
+
+            atomicReference.set(Optional.of(updatedPlant));
+        }, () -> atomicReference.set(Optional.empty()));
+
+        return atomicReference.get();
     }
 
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {

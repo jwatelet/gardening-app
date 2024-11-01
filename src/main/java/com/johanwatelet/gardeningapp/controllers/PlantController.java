@@ -3,6 +3,7 @@ package com.johanwatelet.gardeningapp.controllers;
 
 import com.johanwatelet.gardeningapp.model.PlantDTO;
 import com.johanwatelet.gardeningapp.services.PlantService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,10 +23,19 @@ public class PlantController {
 
     private final PlantService plantService;
 
-    @PostMapping(PLANT_PATH)
-    public ResponseEntity<PlantDTO> createPlant(@RequestBody PlantDTO plantDTO) {
+    @PutMapping(value = PLANT_PATH_ID)
+    public ResponseEntity<PlantDTO> updatePlantById(@PathVariable Long plantId,
+                                                    @RequestBody @Valid PlantDTO plantDTO) {
 
-        PlantDTO savedPlant = plantService.createPlant(plantDTO);
+        PlantDTO updatedPlant = plantService.updateById(plantId, plantDTO).orElseThrow(NotFoundException::new);
+
+        return ResponseEntity.ok(updatedPlant);
+    }
+
+    @PostMapping(PLANT_PATH)
+    public ResponseEntity<PlantDTO> createPlant(@RequestBody @Valid PlantDTO plantDTO) {
+
+        PlantDTO savedPlant = plantService.create(plantDTO);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{plantId}")
                 .buildAndExpand(savedPlant.getId()).toUri();
@@ -35,7 +45,7 @@ public class PlantController {
 
     @GetMapping(PLANT_PATH_ID)
     public ResponseEntity<PlantDTO> getPlantById(@PathVariable Long plantId) {
-        PlantDTO returnValue = plantService.getPlantById(plantId).orElseThrow(NotFoundException::new);
+        PlantDTO returnValue = plantService.getById(plantId).orElseThrow(NotFoundException::new);
 
         return ResponseEntity.ok(returnValue);
     }

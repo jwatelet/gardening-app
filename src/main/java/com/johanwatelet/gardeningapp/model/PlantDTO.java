@@ -1,5 +1,6 @@
 package com.johanwatelet.gardeningapp.model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class PlantDTO {
 
     private Integer version;
 
+    @NotBlank(message = "Name is Mandatory")
     private String name;
 
     private String description;

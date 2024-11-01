@@ -9,7 +9,9 @@ public interface PlantService {
 
     Page<PlantDTO> listPlants(Integer pageNumber, Integer pageSize);
 
-    Optional<PlantDTO> getPlantById(Long plantId);
+    Optional<PlantDTO> getById(Long plantId);
 
-    PlantDTO createPlant(PlantDTO plantDTO);
+    PlantDTO create(PlantDTO plantDTO);
+
+    Optional<PlantDTO> updateById(Long plantId, PlantDTO plantDTO);
 }
