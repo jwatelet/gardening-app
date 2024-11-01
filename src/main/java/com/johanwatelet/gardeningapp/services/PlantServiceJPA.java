@@ -1,12 +1,12 @@
 package com.johanwatelet.gardeningapp.services;
 
+import com.johanwatelet.gardeningapp.entities.Plant;
 import com.johanwatelet.gardeningapp.mappers.PlantMapper;
 import com.johanwatelet.gardeningapp.model.PlantDTO;
 import com.johanwatelet.gardeningapp.repositories.PlantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,15 @@ public class PlantServiceJPA implements PlantService {
         return Optional.ofNullable(plantMapper.entityToDto(plantRepository.findById(plantId).orElse(null)));
     }
 
-    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+    @Override
+    public PlantDTO createPlant(PlantDTO plantDTO) {
+
+        Plant savedPlant = plantRepository.save(plantMapper.dtoToEntity(plantDTO));
+
+        return plantMapper.entityToDto(savedPlant);
+    }
+
+    private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber;
         int queryPageSize;
 

@@ -1,17 +1,22 @@
 package com.johanwatelet.gardeningapp.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.johanwatelet.gardeningapp.entities.Plant;
+import com.johanwatelet.gardeningapp.model.PlantDTO;
 import com.johanwatelet.gardeningapp.repositories.PlantRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,9 +28,31 @@ class PlantControllerIT {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Test
+    @Transactional
+    void createNewPlant() throws Exception {
+
+        PlantDTO plantDTO = PlantDTO.builder()
+                .name("New plant")
+                .description("New description")
+                .build();
+
+        mockMvc.perform(post(PlantController.PLANT_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(plantDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(jsonPath("$.name", is(plantDTO.getName())))
+                .andExpect(jsonPath("$.description", is(plantDTO.getDescription())))
+                .andExpect(jsonPath("$.id").value(notNullValue()));
+    }
+
     @Test
     void getPlantByIdNotFound() throws Exception {
-
         mockMvc.perform(get(PlantController.PLANT_PATH_ID, 10L))
                 .andExpect(status().isNotFound());
     }

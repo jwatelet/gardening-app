@@ -6,10 +6,11 @@ import com.johanwatelet.gardeningapp.services.PlantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Slf4j
 @RestController
@@ -21,16 +22,30 @@ public class PlantController {
 
     private final PlantService plantService;
 
-    @GetMapping(PLANT_PATH_ID)
-    public PlantDTO getPlantById(@PathVariable Long plantId) {
+    @PostMapping(PLANT_PATH)
+    public ResponseEntity<PlantDTO> createPlant(@RequestBody PlantDTO plantDTO) {
 
-        return plantService.getPlantById(plantId).orElseThrow(NotFoundException::new);
+        PlantDTO savedPlant = plantService.createPlant(plantDTO);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{plantId}")
+                .buildAndExpand(savedPlant.getId()).toUri();
+
+        return ResponseEntity.created(location).body(savedPlant);
+    }
+
+    @GetMapping(PLANT_PATH_ID)
+    public ResponseEntity<PlantDTO> getPlantById(@PathVariable Long plantId) {
+        PlantDTO returnValue = plantService.getPlantById(plantId).orElseThrow(NotFoundException::new);
+
+        return ResponseEntity.ok(returnValue);
     }
 
     @GetMapping(PLANT_PATH)
-    public Page<PlantDTO> listPlants(@RequestParam(required = false) Integer pageNumber,
-                                     @RequestParam(required = false) Integer pageSize) {
+    public ResponseEntity<Page<PlantDTO>> listPlants(@RequestParam(required = false) Integer pageNumber,
+                                                     @RequestParam(required = false) Integer pageSize) {
 
-        return plantService.listPlants(pageNumber, pageSize);
+        Page<PlantDTO> returnValues = plantService.listPlants(pageNumber, pageSize);
+
+        return ResponseEntity.ok(returnValues);
     }
 }
