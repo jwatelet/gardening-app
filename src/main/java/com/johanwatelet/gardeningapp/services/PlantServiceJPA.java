@@ -61,6 +61,16 @@ public class PlantServiceJPA implements PlantService {
         return atomicReference.get();
     }
 
+    @Override
+    public Boolean delete(Long plantId) {
+        if (plantRepository.existsById(plantId)) {
+            plantRepository.deleteById(plantId);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber;
         int queryPageSize;

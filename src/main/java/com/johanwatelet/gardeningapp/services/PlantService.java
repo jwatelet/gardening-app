@@ -14,4 +14,6 @@ public interface PlantService {
     PlantDTO create(PlantDTO plantDTO);
 
     Optional<PlantDTO> updateById(Long plantId, PlantDTO plantDTO);
+
+    Boolean delete(Long plantId);
 }

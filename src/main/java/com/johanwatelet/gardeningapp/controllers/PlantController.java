@@ -23,6 +23,16 @@ public class PlantController {
 
     private final PlantService plantService;
 
+
+    @DeleteMapping(PLANT_PATH_ID)
+    public ResponseEntity<Void> deleteById(@PathVariable Long plantId) {
+
+        if(!plantService.delete(plantId)) {
+            throw new NotFoundException();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping(value = PLANT_PATH_ID)
     public ResponseEntity<PlantDTO> updatePlantById(@PathVariable Long plantId,
                                                     @RequestBody @Valid PlantDTO plantDTO) {

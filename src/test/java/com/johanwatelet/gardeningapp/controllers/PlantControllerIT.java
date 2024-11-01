@@ -12,11 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -32,6 +31,26 @@ class PlantControllerIT {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Test
+    @Transactional
+    void deletePlantByIdNotFound() throws Exception {
+        mockMvc.perform(delete(PlantController.PLANT_PATH_ID, -1L))
+                .andExpect(status().isNotFound());
+
+
+        assertThat(plantRepository.findAll()).hasSize(3);
+    }
+
+    @Test
+    @Transactional
+    void deletePlantById() throws Exception {
+        Plant plant = plantRepository.findAll().get(0);
+
+        mockMvc.perform(delete(PlantController.PLANT_PATH_ID, plant.getId()))
+                .andExpect(status().isNoContent());
+
+        assertThat(plantRepository.findAll()).hasSize(2);
+    }
 
     @Test
     @Transactional
