@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode
 public class Plant {
 
     @Id
@@ -21,7 +22,7 @@ public class Plant {
     private Long id;
 
     @Version
-    private int Version;
+    private Integer version;
 
     private String name;
 
