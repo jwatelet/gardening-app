@@ -25,7 +25,6 @@ class PlantRepositoryTest {
 
     @Test
     void findByIdNotFound() {
-
         Optional<Plant> byId = plantRepository.findById(-1L);
 
         assertThat(byId).isEmpty();

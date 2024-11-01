@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PlantServiceJPA implements PlantService {
@@ -27,6 +29,11 @@ public class PlantServiceJPA implements PlantService {
 
         return plantRepository.findAll(pageRequest)
                 .map(plantMapper::entityToDto);
+    }
+
+    @Override
+    public Optional<PlantDTO> getPlantById(Long plantId) {
+        return Optional.ofNullable(plantMapper.entityToDto(plantRepository.findById(plantId).orElse(null)));
     }
 
     public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
