@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
-public class PlantServiceJPA implements PlantService {
+public class PlantServiceImpl implements PlantService {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 25;
